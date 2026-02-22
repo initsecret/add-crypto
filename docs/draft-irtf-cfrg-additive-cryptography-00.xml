@@ -665,6 +665,13 @@ SHOULD follow the longest one.</t>
 
 <back>
 <references><name>Informative References</name>
+<reference anchor="AESFSM" target="https://snkth.com/aes-fcm">
+  <front>
+    <title>AES Fourier Spectral Mode</title>
+    <author fullname="Barry Tone" initials="B." surname="Tone"></author>
+    <date year="2026"></date>
+  </front>
+</reference>
 <reference anchor="MORECRYPTO" target="">
   <front>
     <title>On the Additive Security of Composed Cryptographic Primitives</title>
@@ -673,7 +680,45 @@ SHOULD follow the longest one.</t>
     <date year="2025"></date>
   </front>
 </reference>
+<reference anchor="LAYERS" target="">
+  <front>
+    <title>Defense in Depth Considered Bottomless</title>
+    <author fullname="Nadia Matryoshka" initials="N." surname="Matryoshka"></author>
+    <date year="2024"></date>
+  </front>
+</reference>
 <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8446.xml"/>
+<reference anchor="XWING" target="https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/">
+  <front>
+    <title>X-Wing: general-purpose hybrid post-quantum KEM</title>
+    <author fullname="Deirdre Connolly" initials="D." surname="Connolly"></author>
+    <author fullname="Peter Schwabe" initials="P." surname="Schwabe"></author>
+    <author fullname="Bas Westerbaan" initials="B." surname="Westerbaan"></author>
+    <date year="2024"></date>
+  </front>
+</reference>
+<reference anchor="TDES" target="https://doi.org/10.6028/NIST.SP.800-67r2">
+  <front>
+    <title>Recommendation for the Triple Data Encryption Algorithm (TDEA) Block Cipher</title>
+    <author>
+      <organization>National Institute of Standards and Technology</organization>
+    </author>
+    <date year="2017" month="November"></date>
+  </front>
+</reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8899.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8996.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7696.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+<reference anchor="HYBRID" target="https://datatracker.ietf.org/doc/draft-ietf-tls-hybrid-design/">
+  <front>
+    <title>Hybrid key exchange in TLS 1.3</title>
+    <author fullname="Douglas Stebila" initials="D." surname="Stebila"></author>
+    <author fullname="Scott Fluhrer" initials="S." surname="Fluhrer"></author>
+    <author fullname="Shay Gueron" initials="S." surname="Gueron"></author>
+    <date year="2024"></date>
+  </front>
+</reference>
 <reference anchor="DES" target="https://doi.org/10.6028/NIST.FIPS.46-3">
   <front>
     <title>Data Encryption Standard (DES)</title>
@@ -683,6 +728,12 @@ SHOULD follow the longest one.</t>
     <date year="1999" month="October"></date>
   </front>
 </reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8017.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3514.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5116.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8439.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8452.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9325.xml"/>
 <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7748.xml"/>
 <reference anchor="FIPS203" target="https://doi.org/10.6028/NIST.FIPS.203">
   <front>
@@ -693,13 +744,21 @@ SHOULD follow the longest one.</t>
     <date year="2024" month="August"></date>
   </front>
 </reference>
-<reference anchor="LAYERS" target="">
+<reference anchor="CONSERVATION" target="">
   <front>
-    <title>Defense in Depth Considered Bottomless</title>
-    <author fullname="Nadia Matryoshka" initials="N." surname="Matryoshka"></author>
-    <date year="2024"></date>
+    <title>The First Law of Cryptodynamics: Algorithms Can Be Neither Created Nor Destroyed</title>
+    <author fullname="Emmy Noether-Not" initials="E." surname="Noether-Not"></author>
+    <date year="2023"></date>
   </front>
 </reference>
+<reference anchor="DECISIONHARM" target="">
+  <front>
+    <title>Decisions Considered Harmful</title>
+    <author fullname="Edsger Dijkstra-Adjacent" initials="E." surname="Dijkstra-Adjacent"></author>
+    <date year="1972"></date>
+  </front>
+</reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
 <reference anchor="HQC" target="https://www.nist.gov/news-events/news/2025/03/nist-selects-hqc-fifth-algorithm-post-quantum-encryption">
   <front>
     <title>HQC: Hamming Quasi-Cyclic</title>
@@ -714,66 +773,7 @@ SHOULD follow the longest one.</t>
     <date year="2025"></date>
   </front>
 </reference>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3514.xml"/>
-<reference anchor="DECISIONHARM" target="">
-  <front>
-    <title>Decisions Considered Harmful</title>
-    <author fullname="Edsger Dijkstra-Adjacent" initials="E." surname="Dijkstra-Adjacent"></author>
-    <date year="1972"></date>
-  </front>
-</reference>
-<reference anchor="XWING" target="https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/">
-  <front>
-    <title>X-Wing: general-purpose hybrid post-quantum KEM</title>
-    <author fullname="Deirdre Connolly" initials="D." surname="Connolly"></author>
-    <author fullname="Peter Schwabe" initials="P." surname="Schwabe"></author>
-    <author fullname="Bas Westerbaan" initials="B." surname="Westerbaan"></author>
-    <date year="2024"></date>
-  </front>
-</reference>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5116.xml"/>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8899.xml"/>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8996.xml"/>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8017.xml"/>
 <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9225.xml"/>
-<reference anchor="HYBRID" target="https://datatracker.ietf.org/doc/draft-ietf-tls-hybrid-design/">
-  <front>
-    <title>Hybrid key exchange in TLS 1.3</title>
-    <author fullname="Douglas Stebila" initials="D." surname="Stebila"></author>
-    <author fullname="Scott Fluhrer" initials="S." surname="Fluhrer"></author>
-    <author fullname="Shay Gueron" initials="S." surname="Gueron"></author>
-    <date year="2024"></date>
-  </front>
-</reference>
-<reference anchor="TDES" target="https://doi.org/10.6028/NIST.SP.800-67r2">
-  <front>
-    <title>Recommendation for the Triple Data Encryption Algorithm (TDEA) Block Cipher</title>
-    <author>
-      <organization>National Institute of Standards and Technology</organization>
-    </author>
-    <date year="2017" month="November"></date>
-  </front>
-</reference>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8439.xml"/>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8452.xml"/>
-<reference anchor="AESFSM" target="https://datatracker.ietf.org/doc/draft-irtf-cfrg-aes-fsm/">
-  <front>
-    <title>AES Fourier Spectral Mode</title>
-    <author fullname="Barry Tone" initials="B." surname="Tone"></author>
-    <date year="2026"></date>
-  </front>
-</reference>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9325.xml"/>
-<reference anchor="CONSERVATION" target="">
-  <front>
-    <title>The First Law of Cryptodynamics: Algorithms Can Be Neither Created Nor Destroyed</title>
-    <author fullname="Emmy Noether-Not" initials="E." surname="Noether-Not"></author>
-    <date year="2023"></date>
-  </front>
-</reference>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7696.xml"/>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
 </references>
 
 <section anchor="acknowledgements"><name>Acknowledgements</name>

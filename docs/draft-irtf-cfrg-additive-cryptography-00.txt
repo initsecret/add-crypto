@@ -823,17 +823,17 @@ Internet-Draft               ADD-CRYPTO-TLS                   April 2026
 
 15.  Informative References
 
+   [AESFSM]   Tone, B., "AES Fourier Spectral Mode", 2026,
+              <https://snkth.com/aes-fcm>.
+
    [MORECRYPTO]
               Accumulo, R. and T. Monotone, "On the Additive Security of
               Composed Cryptographic Primitives", 2025.
 
-   [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
-              Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
-              <https://www.rfc-editor.org/info/rfc8446>.
+   [LAYERS]   Matryoshka, N., "Defense in Depth Considered Bottomless",
+              2024.
 
-   [DES]      National Institute of Standards and Technology, "Data
-              Encryption Standard (DES)", October 1999,
-              <https://doi.org/10.6028/NIST.FIPS.46-3>.
+
 
 
 
@@ -842,39 +842,19 @@ Stack                    Expires 3 October 2026                [Page 15]
 Internet-Draft               ADD-CRYPTO-TLS                   April 2026
 
 
-   [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
-              for Security", RFC 7748, DOI 10.17487/RFC7748, January
-              2016, <https://www.rfc-editor.org/info/rfc7748>.
-
-   [FIPS203]  National Institute of Standards and Technology, "Module-
-              Lattice-Based Key-Encapsulation Mechanism Standard",
-              August 2024, <https://doi.org/10.6028/NIST.FIPS.203>.
-
-   [LAYERS]   Matryoshka, N., "Defense in Depth Considered Bottomless",
-              2024.
-
-   [HQC]      Aguilar Melchor, C., Aragon, N., Bettaieb, S., Bidoux, L.,
-              Blazy, O., Deneuville, J., Gaborit, P., and G. Zemor,
-              "HQC: Hamming Quasi-Cyclic", 2025, <https://www.nist.gov/
-              news-events/news/2025/03/nist-selects-hqc-fifth-algorithm-
-              post-quantum-encryption>.
-
-   [RFC3514]  Bellovin, S., "The Security Flag in the IPv4 Header",
-              RFC 3514, DOI 10.17487/RFC3514, April 2003,
-              <https://www.rfc-editor.org/info/rfc3514>.
-
-   [DECISIONHARM]
-              Dijkstra-Adjacent, E., "Decisions Considered Harmful",
-              1972.
+   [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
+              Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
+              <https://www.rfc-editor.org/info/rfc8446>.
 
    [XWING]    Connolly, D., Schwabe, P., and B. Westerbaan, "X-Wing:
               general-purpose hybrid post-quantum KEM", 2024,
               <https://datatracker.ietf.org/doc/draft-connolly-cfrg-
               xwing-kem/>.
 
-   [RFC5116]  McGrew, D., "An Interface and Algorithms for Authenticated
-              Encryption", RFC 5116, DOI 10.17487/RFC5116, January 2008,
-              <https://www.rfc-editor.org/info/rfc5116>.
+   [TDES]     National Institute of Standards and Technology,
+              "Recommendation for the Triple Data Encryption Algorithm
+              (TDEA) Block Cipher", November 2017,
+              <https://doi.org/10.6028/NIST.SP.800-67r2>.
 
    [RFC8899]  Fairhurst, G., Jones, T., Tüxen, M., Rüngeler, I., and T.
               Völker, "Packetization Layer Path MTU Discovery for
@@ -884,57 +864,6 @@ Internet-Draft               ADD-CRYPTO-TLS                   April 2026
    [RFC8996]  Moriarty, K. and S. Farrell, "Deprecating TLS 1.0 and TLS
               1.1", BCP 195, RFC 8996, DOI 10.17487/RFC8996, March 2021,
               <https://www.rfc-editor.org/info/rfc8996>.
-
-   [RFC8017]  Moriarty, K., Ed., Kaliski, B., Jonsson, J., and A. Rusch,
-              "PKCS #1: RSA Cryptography Specifications Version 2.2",
-              RFC 8017, DOI 10.17487/RFC8017, November 2016,
-              <https://www.rfc-editor.org/info/rfc8017>.
-
-
-
-
-Stack                    Expires 3 October 2026                [Page 16]
-
-Internet-Draft               ADD-CRYPTO-TLS                   April 2026
-
-
-   [RFC9225]  Snijders, J., Morrow, C., and R. van Mook, "Software
-              Defects Considered Harmful", RFC 9225,
-              DOI 10.17487/RFC9225, April 2022,
-              <https://www.rfc-editor.org/info/rfc9225>.
-
-   [HYBRID]   Stebila, D., Fluhrer, S., and S. Gueron, "Hybrid key
-              exchange in TLS 1.3", 2024,
-              <https://datatracker.ietf.org/doc/draft-ietf-tls-hybrid-
-              design/>.
-
-   [TDES]     National Institute of Standards and Technology,
-              "Recommendation for the Triple Data Encryption Algorithm
-              (TDEA) Block Cipher", November 2017,
-              <https://doi.org/10.6028/NIST.SP.800-67r2>.
-
-   [RFC8439]  Nir, Y. and A. Langley, "ChaCha20 and Poly1305 for IETF
-              Protocols", RFC 8439, DOI 10.17487/RFC8439, June 2018,
-              <https://www.rfc-editor.org/info/rfc8439>.
-
-   [RFC8452]  Gueron, S., Langley, A., and Y. Lindell, "AES-GCM-SIV:
-              Nonce Misuse-Resistant Authenticated Encryption",
-              RFC 8452, DOI 10.17487/RFC8452, April 2019,
-              <https://www.rfc-editor.org/info/rfc8452>.
-
-   [AESFSM]   Tone, B., "AES Fourier Spectral Mode", 2026,
-              <https://datatracker.ietf.org/doc/draft-irtf-cfrg-aes-
-              fsm/>.
-
-   [RFC9325]  Sheffer, Y., Saint-Andre, P., and T. Fossati,
-              "Recommendations for Secure Use of Transport Layer
-              Security (TLS) and Datagram Transport Layer Security
-              (DTLS)", BCP 195, RFC 9325, DOI 10.17487/RFC9325, November
-              2022, <https://www.rfc-editor.org/info/rfc9325>.
-
-   [CONSERVATION]
-              Noether-Not, E., "The First Law of Cryptodynamics:
-              Algorithms Can Be Neither Created Nor Destroyed", 2023.
 
    [RFC7696]  Housley, R., "Guidelines for Cryptographic Algorithm
               Agility and Selecting Mandatory-to-Implement Algorithms",
@@ -946,6 +875,77 @@ Internet-Draft               ADD-CRYPTO-TLS                   April 2026
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
+   [HYBRID]   Stebila, D., Fluhrer, S., and S. Gueron, "Hybrid key
+              exchange in TLS 1.3", 2024,
+              <https://datatracker.ietf.org/doc/draft-ietf-tls-hybrid-
+              design/>.
+
+   [DES]      National Institute of Standards and Technology, "Data
+              Encryption Standard (DES)", October 1999,
+              <https://doi.org/10.6028/NIST.FIPS.46-3>.
+
+   [RFC8017]  Moriarty, K., Ed., Kaliski, B., Jonsson, J., and A. Rusch,
+              "PKCS #1: RSA Cryptography Specifications Version 2.2",
+              RFC 8017, DOI 10.17487/RFC8017, November 2016,
+              <https://www.rfc-editor.org/info/rfc8017>.
+
+
+
+
+
+Stack                    Expires 3 October 2026                [Page 16]
+
+Internet-Draft               ADD-CRYPTO-TLS                   April 2026
+
+
+   [RFC3514]  Bellovin, S., "The Security Flag in the IPv4 Header",
+              RFC 3514, DOI 10.17487/RFC3514, April 2003,
+              <https://www.rfc-editor.org/info/rfc3514>.
+
+   [RFC5116]  McGrew, D., "An Interface and Algorithms for Authenticated
+              Encryption", RFC 5116, DOI 10.17487/RFC5116, January 2008,
+              <https://www.rfc-editor.org/info/rfc5116>.
+
+   [RFC8439]  Nir, Y. and A. Langley, "ChaCha20 and Poly1305 for IETF
+              Protocols", RFC 8439, DOI 10.17487/RFC8439, June 2018,
+              <https://www.rfc-editor.org/info/rfc8439>.
+
+   [RFC8452]  Gueron, S., Langley, A., and Y. Lindell, "AES-GCM-SIV:
+              Nonce Misuse-Resistant Authenticated Encryption",
+              RFC 8452, DOI 10.17487/RFC8452, April 2019,
+              <https://www.rfc-editor.org/info/rfc8452>.
+
+   [RFC9325]  Sheffer, Y., Saint-Andre, P., and T. Fossati,
+              "Recommendations for Secure Use of Transport Layer
+              Security (TLS) and Datagram Transport Layer Security
+              (DTLS)", BCP 195, RFC 9325, DOI 10.17487/RFC9325, November
+              2022, <https://www.rfc-editor.org/info/rfc9325>.
+
+   [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
+              for Security", RFC 7748, DOI 10.17487/RFC7748, January
+              2016, <https://www.rfc-editor.org/info/rfc7748>.
+
+   [FIPS203]  National Institute of Standards and Technology, "Module-
+              Lattice-Based Key-Encapsulation Mechanism Standard",
+              August 2024, <https://doi.org/10.6028/NIST.FIPS.203>.
+
+   [CONSERVATION]
+              Noether-Not, E., "The First Law of Cryptodynamics:
+              Algorithms Can Be Neither Created Nor Destroyed", 2023.
+
+   [DECISIONHARM]
+              Dijkstra-Adjacent, E., "Decisions Considered Harmful",
+              1972.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+   [HQC]      Aguilar Melchor, C., Aragon, N., Bettaieb, S., Bidoux, L.,
+              Blazy, O., Deneuville, J., Gaborit, P., and G. Zemor,
+              "HQC: Hamming Quasi-Cyclic", 2025, <https://www.nist.gov/
+              news-events/news/2025/03/nist-selects-hqc-fifth-algorithm-
+              post-quantum-encryption>.
 
 
 
@@ -954,9 +954,10 @@ Stack                    Expires 3 October 2026                [Page 17]
 Internet-Draft               ADD-CRYPTO-TLS                   April 2026
 
 
-   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
-              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+   [RFC9225]  Snijders, J., Morrow, C., and R. van Mook, "Software
+              Defects Considered Harmful", RFC 9225,
+              DOI 10.17487/RFC9225, April 2022,
+              <https://www.rfc-editor.org/info/rfc9225>.
 
 Appendix A.  Acknowledgements
 
@@ -977,7 +978,6 @@ Author's Address
    Newark, NJ 07102
    United States of America
    Email: a.stack@example.net
-
 
 
 
