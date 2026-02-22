@@ -1,0 +1,9 @@
+*.txt
+*.xml
+*.pdf
+/draft-*.html
+.idnits/
+!docs/*.txt
+!docs/*.xml
+!docs/*.pdf
+.wget-hsts

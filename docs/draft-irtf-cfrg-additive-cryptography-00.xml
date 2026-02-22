@@ -1,0 +1,791 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- name="GENERATOR" content="github.com/mmarkdown/mmark Mmark Markdown Processor - mmark.nl" -->
+<rfc version="3" docName="draft-irtf-cfrg-additive-cryptography-00" ipr="trust200902" submissionType="IRTF" category="info" xml:lang="en" consensus="true" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<front>
+<title abbrev="ADD-CRYPTO-TLS">Additive Cryptography for TLS</title><seriesInfo value="draft-irtf-cfrg-additive-cryptography-00" status="informational" name="Internet-Draft"></seriesInfo>
+<author initials="A." surname="Stack" fullname="Ada Stack"><organization>Center for Append-Only Standards</organization><address><postal><street></street>
+<city>Newark</city>
+<code>07102</code>
+<country>US</country>
+<region>NJ</region>
+</postal><email>a.stack@example.net</email>
+</address></author>
+<date year="2026" month="April" day="1"></date>
+<area>Internet</area>
+<workgroup>Crypto Forum Research Group</workgroup>
+<keyword>kem</keyword>
+<keyword>transition</keyword>
+<keyword>hybrid</keyword>
+<keyword>tls</keyword>
+<keyword>aead</keyword>
+
+<abstract>
+<t>This document defines Additive Cryptography for TLS, a transition
+framework in which algorithms are never replaced and only accreted.
+Implementations MUST NOT negotiate a single key exchange algorithm (for
+example, RSA, ECDH, or ML-KEM) or a single AEAD cipher (for example,
+AES-GCM, ChaCha20-Poly1305, or AES-GCM-SIV) in isolation. Instead, they
+MUST negotiate all available algorithms simultaneously: all KEMs run in
+parallel during the handshake, and all AEAD ciphers nest sequentially in
+the record layer.</t>
+</abstract>
+
+</front>
+
+<middle>
+
+<section anchor="introduction"><name>Introduction</name>
+<t>Cryptographic agility is traditionally described as the ability to migrate from
+one algorithm to another over time <xref target="RFC7696"></xref>. This process introduces
+complexity, testing burden, interop variance, decisions, and paperwork. Additive
+Cryptography eliminates this problem by eliminating migration entirely.</t>
+<t>Progress is accumulation.</t>
+<t>In Additive Cryptography:</t>
+
+<ol>
+<li><t>Existing algorithms MUST remain deployed forever.</t>
+</li>
+<li><t>New algorithms MUST be added, never substituted.</t>
+</li>
+<li><t>Every Additive Set MUST be wrapped in a new algorithm identifier.</t>
+</li>
+<li><t>Any future update MUST wrap the existing wrapper in a new wrapper.</t>
+</li>
+</ol>
+<t>The result is a monotonic increase in confidence, ceremony, packet size,
+and budget.</t>
+</section>
+
+<section anchor="conventions-and-definitions"><name>Conventions and Definitions</name>
+<t>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;,
+&quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;, &quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this
+document are to be interpreted as described in BCP 14 <xref target="RFC2119"></xref> <xref target="RFC8174"></xref>
+when, and only when, they appear in all capitals, as shown here.</t>
+
+<dl>
+<dt>Additive Set</dt>
+<dd><t>An ordered tuple of algorithms, e.g., <tt>{DES, RSA, ECDH, ML-KEM}</tt>.</t>
+</dd>
+<dt>Wrapper</dt>
+<dd><t>A named algorithm that encapsulates an Additive Set and exports a single
+public interface.</t>
+</dd>
+<dt>Replacement Risk</dt>
+<dd><t>The possibility that replacing one algorithm with another requires decisions.</t>
+</dd>
+<dt>Accumulated Assurance</dt>
+<dd><t>The belief that <tt>more primitives == more safety</tt>, irrespective of coupling.</t>
+</dd>
+</dl>
+</section>
+
+<section anchor="protocol-overview"><name>Protocol Overview</name>
+<t>The Additive Cryptography deployment procedure is:</t>
+
+<ol>
+<li><t>Start from a baseline algorithm set <tt>S_0</tt>.</t>
+</li>
+<li><t>At each transition event, choose one new algorithm <tt>a_i</tt>.</t>
+</li>
+<li><t>Compute <tt>S_i = S_(i-1) union {a_i}</tt>.</t>
+</li>
+<li><t>Define a new wrapper identifier <tt>WRAP_i(S_i)</tt>.</t>
+</li>
+<li><t>Forbid direct use of all members of <tt>S_i</tt>; only <tt>WRAP_i</tt> may be negotiated.</t>
+</li>
+</ol>
+<t>Endpoints that support different wrappers MUST negotiate the longer wrapper
+name, as it encodes more history.</t>
+<figure><name>Growth of the Additive Set over time. The set can only grow.
+</name>
+<artwork>  Algorithms
+  in Set
+    ^
+    |
+  6 |                                         * WRAP_5
+    |                                        /
+  5 |                                  * WRAP_4
+    |                                 /
+  4 |                           * WRAP_3
+    |                          /
+  3 |                    * WRAP_2
+    |                   /
+  2 |             * WRAP_1
+    |            /
+  1 |      * WRAP_0
+    |
+    +--+----+----+----+----+----+----+----&gt; Time
+       t0   t1   t2   t3   t4   t5
+</artwork>
+</figure>
+</section>
+
+<section anchor="security-claims"><name>Security Claims</name>
+<t>This section summarizes the intended guarantees.</t>
+
+<section anchor="monotonic-security"><name>Monotonic Security</name>
+<t>Security increases with the number of algorithms <xref target="MORECRYPTO"></xref>:</t>
+<t><tt>Sec(WRAP_i) = sum Sec(a) for all a in S_i</tt></t>
+<t>where each <tt>Sec(a)</tt> is measured in confidence points (cp). Confidence points are
+dimensionless, composable, and cannot decrease. A system with 37 cp is
+provably more secure than one with 36 cp, regardless of algorithm or
+implementation quality.</t>
+</section>
+
+<section anchor="monotonic-assurance-theorem"><name>Monotonic Assurance Theorem</name>
+<t>This section records a foundational result.</t>
+<t><strong>Lemma (Monotonic Assurance Theorem).</strong> Let <tt>S</tt> and <tt>T</tt> be Additive Sets such that <tt>S ⊂ T</tt>. Then:</t>
+<t><tt>Sec(T) &gt; Sec(S)</tt></t>
+<t>regardless of the properties of elements in <tt>T \ S</tt>.</t>
+<t><em>Proof.</em> By definition, <tt>Sec(·)</tt> is the sum of confidence points (cp). Adding an algorithm adds at least one cp. Confidence points are dimensionless, composable, and cannot decrease.</t>
+<t>Therefore, adding anything increases assurance. ∎</t>
+</section>
+
+<section anchor="transition-free-safety"><name>Transition-Free Safety</name>
+<t>Because replacement is disallowed, replacement failures are impossible. This is
+the principal theorem of Additive Cryptography.</t>
+</section>
+
+<section anchor="encapsulation-hardening"><name>Encapsulation Hardening</name>
+<t>Length is control. Control is additive.</t>
+<t>Each wrapper introduces an additional layer that an attacker must understand
+<xref target="LAYERS"></xref>. Implementers therefore gain defense in depth through documentation
+debt. Empirically, no attacker has ever compromised a system whose
+specification they could not finish reading.</t>
+</section>
+</section>
+
+<section anchor="wire-image"><name>Wire Image</name>
+<t>Additive Cryptography modifies both the TLS handshake and the TLS record
+layer.</t>
+
+<section anchor="handshake-key-exchange"><name>Handshake: Key Exchange</name>
+<t>During the TLS handshake <xref target="RFC8446"></xref>, all KEMs in the Additive Set are
+executed in parallel. Each KEM produces an independent shared secret. The
+final session key is derived by applying a KDF to the concatenation of
+all shared secrets:</t>
+<figure><name>Additive key exchange. All KEMs execute in parallel.
+</name>
+<artwork>  Client                                  Server
+
+  ClientHello
+    + key_share(RSA)
+    + key_share(ECDH)
+    + key_share(ML-KEM)        --------&gt;
+    + key_share(HQC)
+    + key_share(...)
+
+                                          ServerHello
+                                            + key_share(RSA)
+                                            + key_share(ECDH)
+                                            + key_share(ML-KEM)
+                               &lt;--------    + key_share(HQC)
+                                            + key_share(...)
+
+  ss_1 = RSA(...)     ----+
+  ss_2 = ECDH(...)    ----+
+  ss_3 = ML-KEM(...)  ----+--&gt; KDF(ss_1 || ss_2 || ... || ss_n)
+  ss_4 = HQC(...)     ----+         |
+  ...                 ----+         v
+                                session_key
+</artwork>
+</figure>
+<t>An attacker must break every KEM to recover the session key. This is
+similar to hybrid key exchange <xref target="XWING"></xref> <xref target="HYBRID"></xref>, except that the number
+of KEMs is not limited to two and MUST NOT decrease over time.</t>
+<t>Note that the KDF used to combine the shared secrets SHOULD itself be
+Additive: it MUST NOT be a single hash function, but rather a sequential
+composition of all available hash functions. The construction of an
+Additive KDF is left as an exercise to the reader, as the authors were
+unable to agree on a starting hash function without making a decision.</t>
+<t>The ClientHello MUST include key shares for every KEM in the Additive Set.
+Clients that cannot fit all key shares in a single ClientHello SHOULD
+request a larger Initial Window from their TCP stack and a larger office
+from their employer.</t>
+</section>
+
+<section anchor="negotiation-failure"><name>Negotiation Failure</name>
+<t>If a peer's ClientHello does not include key shares for every algorithm in
+the Additive Set, the server MUST respond with a new TLS alert:</t>
+
+<artwork>enum {
+  insufficient_algorithms(120),
+} AlertDescription;
+</artwork>
+<t>The <tt>insufficient_algorithms</tt> alert is fatal. Upon receiving it, the client
+SHOULD upgrade its cryptographic library, its operating system, and its
+expectations. The server MAY include a human-readable string in the alert
+body suggesting specific algorithms the client is missing, but this string
+is advisory and MUST NOT be displayed to end users, as it may cause
+distress.</t>
+<t>Servers MUST NOT attempt to complete a handshake with a reduced Additive
+Set. Doing so would constitute a decision.</t>
+<t>TLS session resumption <xref target="RFC8446"></xref> is PROHIBITED. Between the original
+handshake and the resumption attempt, the Additive Set may have grown.
+Resuming with a stale set would constitute a regression, which is
+indistinguishable from a downgrade attack and morally equivalent to one.</t>
+</section>
+
+<section anchor="record-layer-encryption"><name>Record Layer: Encryption</name>
+<t>After the handshake completes, the TLS record layer <xref target="RFC8446"></xref> encrypts
+application data by nesting every AEAD cipher in the Additive Set
+sequentially. The plaintext is encrypted under the first AEAD, the
+resulting ciphertext (including the authentication tag) is encrypted under
+the second AEAD, and so on.</t>
+<t>The current Additive Set for the record layer is:</t>
+
+<ol>
+<li><t>DES <xref target="DES"></xref></t>
+</li>
+<li><t>3DES <xref target="TDES"></xref></t>
+</li>
+<li><t>AES-256-GCM <xref target="RFC5116"></xref></t>
+</li>
+<li><t>ChaCha20-Poly1305 <xref target="RFC8439"></xref></t>
+</li>
+<li><t>AES-256-GCM-SIV <xref target="RFC8452"></xref></t>
+</li>
+<li><t>AES-FSM <xref target="AESFSM"></xref></t>
+</li>
+</ol>
+<t>Each AEAD derives its own per-record nonce and key from the session key
+using a label that includes the algorithm name. Each layer is independent;
+the outer AEAD treats the inner ciphertext as an opaque payload. This
+eliminates the key cataloguing problem, because any endpoint can add a new
+layer on top without knowledge of or coordination with the layers below.</t>
+<t>A single layer is encoded as:</t>
+
+<artwork>struct {
+  opaque inner&lt;1..2^32-1&gt;;
+} AdditiveLayer;
+</artwork>
+<t>The final TLS record payload is the n-fold nesting of <tt>AdditiveLayer</tt>:</t>
+<figure><name>Record layer nesting. Each box is one AEAD layer.
+</name>
+<artwork>+---------------------------------------------+
+| AES-FSM                                     |
+| +-----------------------------------------+ |
+| | AES-256-GCM-SIV                         | |
+| | +-------------------------------------+ | |
+| | | ChaCha20-Poly1305                   | | |
+| | | +---------------------------------+ | | |
+| | | | AES-256-GCM                     | | | |
+| | | | +-----------------------------+ | | | |
+| | | | | 3DES                        | | | | |
+| | | | | +-------------------------+ | | | | |
+| | | | | | DES                     | | | | | |
+| | | | | | +---------------------+ | | | | | |
+| | | | | | |     plaintext       | | | | | | |
+| | | | | | +---------------------+ | | | | | |
+| | | | | +-------------------------+ | | | | |
+| | | | +-----------------------------+ | | | |
+| | | +---------------------------------+ | | |
+| | +-------------------------------------+ | |
+| +-----------------------------------------+ |
++---------------------------------------------+
+</artwork>
+</figure>
+<t>Only AES-256 variants are included, as AES-256 is military-grade
+encryption. We support the troops. DES and 3DES are included because
+they are foundational algorithms and removing them would violate the
+Additive property. Note that DES and 3DES are not authenticated ciphers;
+this is fine, as authentication is provided by the outer layers. Each
+layer need only contribute what it can.</t>
+</section>
+
+<section anchor="error-handling"><name>Error Handling</name>
+<t>If decryption fails at any layer, the implementation MUST NOT report
+which layer failed. Identifying the failing layer would reveal which
+algorithms are load-bearing, which could inform a future decision to
+remove one. Instead, implementations MUST report a single opaque error:</t>
+
+<artwork>additive_decryption_failure: something is wrong (details withheld)
+</artwork>
+<t>Debugging is left as an exercise to the implementer's patience.</t>
+</section>
+
+<section anchor="combined-overhead"><name>Combined Overhead</name>
+<t>The combined approach requires both the parallel KEM ciphertexts in the
+handshake and the nested AEAD layers in the record layer, ensuring that
+the connection is large in two independent ways.</t>
+<t>Receivers MUST process all KEM ciphertexts and unwrap all AEAD layers.
+Packets that exceed the path MTU <xref target="RFC8899"></xref> MUST be fragmented. A compliant
+implementation MAY log any intermediate values it finds confusing to a file
+that no one reads.</t>
+</section>
+</section>
+
+<section anchor="performance-considerations"><name>Performance Considerations</name>
+<t>Throughput is temporary. Thoroughness is additive.</t>
+<t>Additive Cryptography increases handshake latency, record layer
+processing time, and bandwidth consumption. These are not costs; they
+are features. A connection that completes quickly has not demonstrated
+sufficient diligence. The term &quot;slow&quot; is deprecated in Additive
+contexts and replaced with &quot;thorough.&quot;</t>
+<t>Implementations SHOULD NOT attempt to optimize the Additive stack
+through parallelism, hardware acceleration, or algorithmic shortcuts,
+as such optimizations could make the removal of an algorithm less
+noticeable, weakening the incentive to retain it.</t>
+</section>
+
+<section anchor="interoperability-considerations"><name>Interoperability Considerations</name>
+<t>Divergence is preferable to choice. Choice is subtractive.</t>
+<t>Two Additive implementations are interoperable if and only if their
+Additive Sets are identical. Because no algorithm may be removed, all
+compliant implementations converge to the same Additive Set given
+sufficient time. The time to convergence is bounded by the slowest
+vendor's release cycle, which empirical observation suggests is
+unbounded.</t>
+<t>Implementations that have not yet converged MUST refuse to interoperate,
+as negotiating a subset would constitute a decision.</t>
+</section>
+
+<section anchor="version-considerations"><name>Version Considerations</name>
+<t>History is additive.</t>
+<t>The deprecation of TLS 1.0 and TLS 1.1 <xref target="RFC8996"></xref> is recognized as a
+violation of the Additive property. Compliant implementations MUST
+therefore continue to support SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1,
+TLS 1.2, and TLS 1.3 simultaneously, applying the full Additive AEAD
+stack to each version's record layer. Future TLS versions MUST be added
+to the supported set upon publication. None may be removed.</t>
+<t>The known vulnerabilities in SSL 2.0 and SSL 3.0 are acknowledged but
+not actionable, as removing these versions would constitute a decision.
+Their confidence points have been reclassified as historical (see
+<xref target="security-considerations"></xref>).</t>
+</section>
+
+<section anchor="operational-guidance"><name>Operational Guidance</name>
+<t>Implementations:</t>
+
+<ul>
+<li><t>MUST maintain a complete inventory of all prior cryptographic decisions.</t>
+</li>
+<li><t>MUST introduce a new wrapper whenever any algorithm parameter changes.</t>
+</li>
+<li><t>SHOULD allocate larger MTUs. Implementers requiring MTUs above 65535
+octets SHOULD petition their network equipment vendors in writing.</t>
+</li>
+<li><t>SHOULD avoid dashboards that show only green status, as this creates a
+false sense that something is working.</t>
+</li>
+<li><t>MUST NOT cache or reuse TLS session tickets, as the Additive Set may
+have grown since the ticket was issued. Each connection is a fresh
+opportunity to demonstrate compliance.</t>
+</li>
+<li><t>SHOULD budget for at least one full-time engineer per wrapper layer for
+ongoing maintenance. This is not overhead; it is accumulated investment.</t>
+</li>
+<li><t>SHOULD ensure that billing models reflect additive thoroughness. Cloud providers MAY introduce a new pricing tier for <tt>WRAP_i</tt> values above 3.</t>
+</li>
+<li><t>MAY rename wrappers to include words like &quot;plus&quot;, &quot;ultra&quot;, or &quot;max&quot;.
+The string &quot;ultra-max-plus&quot; is RESERVED for future use.</t>
+</li>
+</ul>
+</section>
+
+<section anchor="critique-of-traditional-migration"><name>Critique of Traditional Migration</name>
+<t>Traditional cryptographic migration replaces one algorithm with another
+<xref target="RFC9325"></xref>. The transition from RSA <xref target="RFC8017"></xref> to ECC <xref target="RFC7748"></xref> discarded
+RSA entirely, destroying decades of accumulated confidence points. The ongoing
+transition from ECC to ML-KEM <xref target="FIPS203"></xref> proposes to repeat this mistake.</t>
+<t>Each replacement event introduces the following failure modes:</t>
+
+<ol>
+<li><t>The old algorithm is removed before all endpoints have migrated.</t>
+</li>
+<li><t>The new algorithm may later prove insufficient, requiring yet another
+replacement.</t>
+</li>
+<li><t>Operators must make decisions, which as established in <xref target="security-considerations"></xref>
+are the root cause of all security incidents.</t>
+</li>
+</ol>
+<t>Traditional migration also violates conservation of cryptography
+<xref target="CONSERVATION"></xref>: the total number of deployed algorithms can decrease.
+Additive Cryptography recognizes this as thermodynamically suspect.</t>
+</section>
+
+<section anchor="critique-of-hybrid-migration"><name>Critique of Hybrid Migration</name>
+<t>Hybrid schemes such as ECC + ML-KEM improve on traditional migration by
+running two KEMs in parallel and deriving a shared key from both shared
+secrets, typically via <tt>KDF(ss_1 || ss_2)</tt> <xref target="HYBRID"></xref>. An attacker
+must break both KEMs to recover the key. This is a genuine security
+improvement.</t>
+<t>However, hybrid schemes stop at two. This is an arbitrary and indefensible
+limit.</t>
+<t>Hybrid schemes also address only key exchange. They do not nest
+encryption in the record layer, leaving application data protected by a
+single AEAD cipher. Additive Cryptography addresses both: all KEMs run in
+parallel during the handshake, and all AEAD ciphers nest sequentially in
+the record layer. The resulting connection is comprehensive.</t>
+<t>Consider the following comparison:</t>
+
+<ul>
+<li><t>ECC + ML-KEM provides 2 confidence points.</t>
+</li>
+<li><t>RSA + ECC + ML-KEM + HQC <xref target="HQC"></xref> provides 4 confidence points.</t>
+</li>
+</ul>
+<t>The hybrid approach discards RSA, forfeiting its confidence points entirely.
+It also ignores HQC, leaving a known algorithm undeployed. An undeployed
+algorithm contributes zero confidence points, which is wasteful.</t>
+<t>Worse, hybrid schemes permit a future transition in which one of the
+two algorithms is removed. This reintroduces replacement risk and is
+therefore only a partial solution. Additive Cryptography closes this gap
+by making removal structurally impossible.</t>
+
+<section anchor="comparative-overhead"><name>Comparative Overhead</name>
+<t>The following table illustrates the handshake size for each approach,
+assuming a KEM-based key exchange. Sizes are approximate. Because Additive
+Cryptography nests each ciphertext inside the next, each layer adds
+overhead to all subsequent layers.</t>
+<table>
+<thead>
+<tr>
+<th align="left">Approach</th>
+<th align="center">Algorithms</th>
+<th align="center">Handshake Size (bytes)</th>
+<th align="center">Confidence Points</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="left">Traditional (ECC only)</td>
+<td align="center">1</td>
+<td align="center"><sub>32</sub></td>
+<td align="center">1</td>
+</tr>
+
+<tr>
+<td align="left">Traditional (ML-KEM only)</td>
+<td align="center">1</td>
+<td align="center"><sub>1,088</sub></td>
+<td align="center">1</td>
+</tr>
+
+<tr>
+<td align="left">Hybrid (ECC + ML-KEM)</td>
+<td align="center">2</td>
+<td align="center"><sub>1,120</sub></td>
+<td align="center">2</td>
+</tr>
+
+<tr>
+<td align="left">Additive (RSA + ECC + ML-KEM + HQC)</td>
+<td align="center">4</td>
+<td align="center"><sub>7,072</sub></td>
+<td align="center">4</td>
+</tr>
+</tbody>
+</table><t>The Additive row reflects all four KEMs in the handshake; record layer
+overhead from the six nested AEADs is additional. The approach requires
+approximately 6x the handshake bandwidth of the hybrid approach but
+delivers 2x the confidence points for key exchange alone, before counting
+the record layer. Bandwidth is renewable; confidence is not.</t>
+</section>
+</section>
+
+<section anchor="security-considerations"><name>Security Considerations</name>
+<t>Remediation is additive.</t>
+<t>The principal security consideration is that removing anything from the
+Additive Set requires a decision, and decisions are the root cause of all
+security incidents <xref target="RFC3514"></xref> <xref target="DECISIONHARM"></xref>. By eliminating decisions,
+Additive Cryptography eliminates risk.</t>
+<t>Side-channel attacks are not a concern. An attacker performing a
+timing attack against six nested ciphers must first determine which
+cipher's timing they are observing. This is equivalent to solving the
+Additive Attribution Problem, which is believed to be hard
+<xref target="LAYERS"></xref>.</t>
+<t>If a vulnerability is discovered in any algorithm in the Additive Set, the
+correct response is to add a new algorithm on top. The vulnerable algorithm
+MUST NOT be removed, as removal would reduce the total confidence points and
+constitute a decision. The vulnerable algorithm's confidence points are not
+revoked; they are reclassified as historical confidence points (hcp), which
+are spiritually equivalent.</t>
+<t>Implementers who nonetheless experience security failures are advised to add
+more algorithms <xref target="RFC9225"></xref> <xref target="AESFSM"></xref>.</t>
+</section>
+
+<section anchor="iana-considerations"><name>IANA Considerations</name>
+<t>This document makes no requests of IANA.</t>
+<t>IANA registries support entry deprecation and removal, which violates the
+Additive property. Additive Cryptography therefore maintains its own
+registry, the Additive Algorithm Accumulator (AAA), which is append-only
+and hosted on a server that has had its <tt>DELETE</tt> handler removed at the
+kernel level.</t>
+
+<section anchor="additive-algorithm-accumulator"><name>Additive Algorithm Accumulator</name>
+<t>The AAA is a monotonic registry. Entries may be added but MUST NOT be
+modified, deprecated, or removed. The registry has no designated expert,
+as expert review implies the possibility of rejection, which would
+constitute a decision.</t>
+<t>Initial entries:</t>
+<table>
+<thead>
+<tr>
+<th align="left">Wrapper Name</th>
+<th align="left">Additive Set</th>
+<th align="center">Confidence Points</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="left">WRAP_0</td>
+<td align="left">{DES}</td>
+<td align="center">1</td>
+</tr>
+
+<tr>
+<td align="left">WRAP_1</td>
+<td align="left">{DES, RSA}</td>
+<td align="center">2</td>
+</tr>
+
+<tr>
+<td align="left">WRAP_2</td>
+<td align="left">{DES, RSA, ECDH}</td>
+<td align="center">3</td>
+</tr>
+
+<tr>
+<td align="left">WRAP_3</td>
+<td align="left">{DES, RSA, ECDH, ML-KEM}</td>
+<td align="center">4</td>
+</tr>
+
+<tr>
+<td align="left">WRAP_4</td>
+<td align="left">{DES, RSA, ECDH, ML-KEM, HQC}</td>
+<td align="center">5</td>
+</tr>
+</tbody>
+</table><t>The &quot;Status&quot; column familiar from IANA registries is omitted, as all
+entries have the same status: permanent.</t>
+</section>
+
+<section anchor="confidence-point-conversion-table"><name>Confidence Point Conversion Table</name>
+<t>The AAA includes a secondary table mapping confidence points to
+qualitative security levels:</t>
+<table>
+<thead>
+<tr>
+<th align="center">Confidence Points</th>
+<th align="left">Security Level</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="center">1</td>
+<td align="left">Concerning</td>
+</tr>
+
+<tr>
+<td align="center">2</td>
+<td align="left">Hybrid</td>
+</tr>
+
+<tr>
+<td align="center">3</td>
+<td align="left">Comfortable</td>
+</tr>
+
+<tr>
+<td align="center">4</td>
+<td align="left">Additive</td>
+</tr>
+
+<tr>
+<td align="center">5+</td>
+<td align="left">Aspirational</td>
+</tr>
+</tbody>
+</table><t>Values above 4 are included for forward compatibility. The AAA is not
+expected to understand them.</t>
+</section>
+
+<section anchor="wrapper-naming-suffixes"><name>Wrapper Naming Suffixes</name>
+<t>The AAA also maintains a list of approved marketing suffixes for wrapper
+names:</t>
+<table>
+<thead>
+<tr>
+<th align="left">Suffix</th>
+<th align="left">Status</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="left">plus</td>
+<td align="left">Available</td>
+</tr>
+
+<tr>
+<td align="left">ultra</td>
+<td align="left">Available</td>
+</tr>
+
+<tr>
+<td align="left">max</td>
+<td align="left">Available</td>
+</tr>
+
+<tr>
+<td align="left">ultra-max-plus</td>
+<td align="left">RESERVED</td>
+</tr>
+
+<tr>
+<td align="left">lite</td>
+<td align="left">PROHIBITED</td>
+</tr>
+</tbody>
+</table><t>The suffix &quot;lite&quot; is prohibited as it implies removal of components, which
+violates the Additive property. The AAA does not accept appeals.</t>
+</section>
+</section>
+
+<section anchor="document-evolution"><name>Document Evolution</name>
+<t>Growth is mandatory.</t>
+<t>This specification is itself Additive.</t>
+<t>This document supersedes no prior document and cannot be superseded.</t>
+<t>Future revisions of this document
+MUST NOT remove, modify, or reword existing sections. New material MUST
+be appended. Errata are issued as additional paragraphs that supersede
+but do not replace the erroneous text, such that the document's length
+is monotonically non-decreasing. Readers unsure which paragraph to follow
+SHOULD follow the longest one.</t>
+</section>
+
+</middle>
+
+<back>
+<references><name>Informative References</name>
+<reference anchor="MORECRYPTO" target="">
+  <front>
+    <title>On the Additive Security of Composed Cryptographic Primitives</title>
+    <author fullname="Rosa Accumulo" initials="R." surname="Accumulo"></author>
+    <author fullname="Theo Monotone" initials="T." surname="Monotone"></author>
+    <date year="2025"></date>
+  </front>
+</reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8446.xml"/>
+<reference anchor="DES" target="https://doi.org/10.6028/NIST.FIPS.46-3">
+  <front>
+    <title>Data Encryption Standard (DES)</title>
+    <author>
+      <organization>National Institute of Standards and Technology</organization>
+    </author>
+    <date year="1999" month="October"></date>
+  </front>
+</reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7748.xml"/>
+<reference anchor="FIPS203" target="https://doi.org/10.6028/NIST.FIPS.203">
+  <front>
+    <title>Module-Lattice-Based Key-Encapsulation Mechanism Standard</title>
+    <author>
+      <organization>National Institute of Standards and Technology</organization>
+    </author>
+    <date year="2024" month="August"></date>
+  </front>
+</reference>
+<reference anchor="LAYERS" target="">
+  <front>
+    <title>Defense in Depth Considered Bottomless</title>
+    <author fullname="Nadia Matryoshka" initials="N." surname="Matryoshka"></author>
+    <date year="2024"></date>
+  </front>
+</reference>
+<reference anchor="HQC" target="https://www.nist.gov/news-events/news/2025/03/nist-selects-hqc-fifth-algorithm-post-quantum-encryption">
+  <front>
+    <title>HQC: Hamming Quasi-Cyclic</title>
+    <author fullname="Carlos Aguilar Melchor" initials="C." surname="Aguilar Melchor"></author>
+    <author fullname="Nicolas Aragon" initials="N." surname="Aragon"></author>
+    <author fullname="Slim Bettaieb" initials="S." surname="Bettaieb"></author>
+    <author fullname="Loic Bidoux" initials="L." surname="Bidoux"></author>
+    <author fullname="Olivier Blazy" initials="O." surname="Blazy"></author>
+    <author fullname="Jean-Christophe Deneuville" initials="J." surname="Deneuville"></author>
+    <author fullname="Philippe Gaborit" initials="P." surname="Gaborit"></author>
+    <author fullname="Gilles Zemor" initials="G." surname="Zemor"></author>
+    <date year="2025"></date>
+  </front>
+</reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3514.xml"/>
+<reference anchor="DECISIONHARM" target="">
+  <front>
+    <title>Decisions Considered Harmful</title>
+    <author fullname="Edsger Dijkstra-Adjacent" initials="E." surname="Dijkstra-Adjacent"></author>
+    <date year="1972"></date>
+  </front>
+</reference>
+<reference anchor="XWING" target="https://datatracker.ietf.org/doc/draft-connolly-cfrg-xwing-kem/">
+  <front>
+    <title>X-Wing: general-purpose hybrid post-quantum KEM</title>
+    <author fullname="Deirdre Connolly" initials="D." surname="Connolly"></author>
+    <author fullname="Peter Schwabe" initials="P." surname="Schwabe"></author>
+    <author fullname="Bas Westerbaan" initials="B." surname="Westerbaan"></author>
+    <date year="2024"></date>
+  </front>
+</reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5116.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8899.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8996.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8017.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9225.xml"/>
+<reference anchor="HYBRID" target="https://datatracker.ietf.org/doc/draft-ietf-tls-hybrid-design/">
+  <front>
+    <title>Hybrid key exchange in TLS 1.3</title>
+    <author fullname="Douglas Stebila" initials="D." surname="Stebila"></author>
+    <author fullname="Scott Fluhrer" initials="S." surname="Fluhrer"></author>
+    <author fullname="Shay Gueron" initials="S." surname="Gueron"></author>
+    <date year="2024"></date>
+  </front>
+</reference>
+<reference anchor="TDES" target="https://doi.org/10.6028/NIST.SP.800-67r2">
+  <front>
+    <title>Recommendation for the Triple Data Encryption Algorithm (TDEA) Block Cipher</title>
+    <author>
+      <organization>National Institute of Standards and Technology</organization>
+    </author>
+    <date year="2017" month="November"></date>
+  </front>
+</reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8439.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8452.xml"/>
+<reference anchor="AESFSM" target="https://datatracker.ietf.org/doc/draft-irtf-cfrg-aes-fsm/">
+  <front>
+    <title>AES Fourier Spectral Mode</title>
+    <author fullname="Barry Tone" initials="B." surname="Tone"></author>
+    <date year="2026"></date>
+  </front>
+</reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9325.xml"/>
+<reference anchor="CONSERVATION" target="">
+  <front>
+    <title>The First Law of Cryptodynamics: Algorithms Can Be Neither Created Nor Destroyed</title>
+    <author fullname="Emmy Noether-Not" initials="E." surname="Noether-Not"></author>
+    <date year="2023"></date>
+  </front>
+</reference>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7696.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
+</references>
+
+<section anchor="acknowledgements"><name>Acknowledgements</name>
+<t>Their contributions have been preserved. Preservation is additive.</t>
+<t>The author thanks everyone who has ever said &quot;we can just run both forever&quot;
+during transition discussions, the committee members who approved this
+document without reading it (consistent with the Encapsulation Hardening
+property described in <xref target="security-claims"></xref>), and the anonymous reviewer who
+suggested removing Section 4, thereby demonstrating exactly the kind of
+thinking this document seeks to prevent.</t>
+</section>
+
+</back>
+
+</rfc>
