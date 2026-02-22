@@ -628,7 +628,7 @@ SHOULD follow the longest one.
  </front>
 </reference>
 
-<reference anchor='AESFSM' target='https://datatracker.ietf.org/doc/draft-irtf-cfrg-aes-fsm/'>
+<reference anchor='AESFSM' target='https://snkth.com/aes-fcm'>
  <front>
   <title>AES Fourier Spectral Mode</title>
   <author initials='B.' surname='Tone' fullname='Barry Tone'></author>
